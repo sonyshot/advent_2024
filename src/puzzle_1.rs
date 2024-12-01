@@ -45,7 +45,7 @@ fn one(file_lines: Vec<&str>) -> u32 {
 }
 
 fn two(file_lines: Vec<&str>) -> u32 {
-    let mut lhs_map = HashMap::<u32, u32>::new();
+    let mut lhs_list = Vec::<u32>::new();
     let mut rhs_map = HashMap::<u32, u32>::new();
 
     let re = Regex::new(r"(?<lhs>\d+)\s+(?<rhs>\d+)").unwrap();
@@ -67,12 +67,12 @@ fn two(file_lines: Vec<&str>) -> u32 {
             .parse::<u32>()
             .unwrap();
 
-        lhs_map.insert(lhs_num, lhs_map.get(&lhs_num).unwrap_or(&0) + 1);
+        lhs_list.push(lhs_num);
         rhs_map.insert(rhs_num, rhs_map.get(&rhs_num).unwrap_or(&0) + 1);
     });
 
-    lhs_map
+    lhs_list
         .iter()
-        .map(|(k, _)| rhs_map.get(k).unwrap_or(&0) * k)
+        .map(|left| rhs_map.get(left).unwrap_or(&0) * left)
         .sum()
 }
