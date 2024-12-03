@@ -64,7 +64,8 @@ fn two(file_lines: Vec<&str>) -> u32 {
                 .map(|level| level.parse::<u32>().unwrap())
                 .collect()
         })
-        .filter(safer_report).count() as u32
+        .filter(safer_report)
+        .count() as u32
 }
 
 fn safer_report(report: &Vec<u32>) -> bool {
