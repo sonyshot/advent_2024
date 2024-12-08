@@ -7,6 +7,18 @@ pub fn solve() -> u32 {
     two(read_to_string(filepath).unwrap().lines().collect())
 }
 
+#[derive(PartialEq, Eq, Hash)]
+enum Direction {
+    LR,
+    RL,
+    UD,
+    DU,
+    UL,
+    UR,
+    DR,
+    DL,
+}
+
 fn one(file_lines: Vec<&str>) -> u32 {
     let mut sum = 0;
 
@@ -15,70 +27,47 @@ fn one(file_lines: Vec<&str>) -> u32 {
 
     let xmas = vec!["X", "M", "A", "S"];
 
-    let h_l_r = |arr: &[&str], (x, y): (usize, usize)| {
-        if x + 4 > columns {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y].get(x + i..x + i + 1).unwrap() == xmas[i])
-            })
-        }
-    };
-    let h_r_l = |arr: &[&str], (x, y): (usize, usize)| {
-        if x < 3 {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y].get(x - i..x - i + 1).unwrap() == xmas[i])
-            })
-        }
-    };
-    let v_u_d = |arr: &[&str], (x, y): (usize, usize)| {
-        if y + 4 > rows {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y + i].get(x..x + 1).unwrap() == xmas[i])
-            })
-        }
-    };
-    let v_d_u = |arr: &[&str], (x, y): (usize, usize)| {
-        if y < 3 {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y - i].get(x..x + 1).unwrap() == xmas[i])
-            })
-        }
+    let directions = |size: usize| {
+        HashMap::from([
+            (
+                Direction::LR,
+                (0..size)
+                    .map(|i| (i as i32, 0))
+                    .collect::<Vec<(i32, i32)>>(),
+            ),
+            (Direction::RL, (0..size).map(|i| (-(i as i32), 0)).collect()),
+            (Direction::UD, (0..size).map(|i| (0, i as i32)).collect()),
+            (Direction::DU, (0..size).map(|i| (0, -(i as i32))).collect()),
+            (
+                Direction::UL,
+                (0..size).map(|i| (-(i as i32), -(i as i32))).collect(),
+            ),
+            (
+                Direction::UR,
+                (0..size).map(|i| (i as i32, -(i as i32))).collect(),
+            ),
+            (
+                Direction::DR,
+                (0..size).map(|i| (i as i32, i as i32)).collect(),
+            ),
+            (
+                Direction::DL,
+                (0..size).map(|i| (-(i as i32), i as i32)).collect(),
+            ),
+        ])
     };
 
-    let d_u_r = |arr: &[&str], (x, y): (usize, usize)| {
-        if y < 3 || x + 4 > columns {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y - i].get(x + i..x + i + 1).unwrap() == xmas[i])
-            })
+    let xmas_search = directions(xmas.len());
+
+    xmas_search.into_values().map(
+        |offsets| {
+            for (x, y) in offsets.iter().map(|(xo, yo)| (0 + xo, 0 + yo)) {
+                let (x, y) = (x as usize, y as usize);
+                file_lines.get(y).unwrap_or(&"").get(x..x+1).unwrap();
+            }
         }
-    };
-    let d_d_r = |arr: &[&str], (x, y): (usize, usize)| {
-        if y + 4 > rows || x + 4 > columns {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y + i].get(x + i..x + i + 1).unwrap() == xmas[i])
-            })
-        }
-    };
-    let d_d_l = |arr: &[&str], (x, y): (usize, usize)| {
-        if y + 4 > rows || x < 3 {
-            false
-        } else {
-            (0..4).fold(true, |acc, i| {
-                acc && (arr[y + i].get(x - i..x - i + 1).unwrap() == xmas[i])
-            })
-        }
-    };
+    );
+
     let d_u_l = |arr: &[&str], (x, y): (usize, usize)| {
         if y < 3 || x < 3 {
             false
